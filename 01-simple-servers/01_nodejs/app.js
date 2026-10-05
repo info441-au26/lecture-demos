@@ -5,7 +5,8 @@ const days = years * 365
 const hours = days * 24
 const minutes = hours * 60
 
-console.log("There are " + minutes + " minutes in a year")
+// console.log("There are " + (minutes * hours * days * years) + " minutes in a year")
+console.log(`There are ${minutes} minutes in a year`)
 
 // note: These three ways of writing functions are (mostly) equivalent
 
