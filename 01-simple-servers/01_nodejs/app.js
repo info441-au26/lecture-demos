@@ -1,5 +1,12 @@
 console.log("hello world")
 
+function clickHandler() {
+    console.log("Hi")
+}
+
+let button = document.querySelector("button");
+button.addEventListener("click", clickHandler);
+
 const years = 1
 const days = years * 365
 const hours = days * 24
