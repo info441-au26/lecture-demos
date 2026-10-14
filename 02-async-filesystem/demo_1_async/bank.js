@@ -4,18 +4,15 @@ function sleep(ms) {
 
 let balance = 100;
 
-async function withdraw(name, amount) {
-  console.log(name, "sees balance", balance);
-  if (balance >= amount) {
-    await sleep(100);
-    balance = balance - amount;
-    console.log(name, "withdrew", amount);
+async function deposit(name, amount) {
+  await sleep(50);
+  balance += amount;
+}
 
-    if (balance < 0) {
-      console.log("Uh-oh, negative balance!!")
-      // ... undo the withdrawal
-      balance += amount
-    }
+async function withdraw(name, amount) {
+  if (balance >= amount) {
+    // await sleep(100);  // could be a DB call?
+    balance = balance - amount;
   }
 }
 
