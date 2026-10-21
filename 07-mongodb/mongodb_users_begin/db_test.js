@@ -2,7 +2,9 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
 // const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const uri = "mongodb+srv://asfg_db_user:dJiWNK3TavO8M6tH@info441-26au-demo.ceufqjt.mongodb.net/";
+const dbUser = process.env.DB_USER_NAME
+const dbPwd = process.env.DB_PASSWORD
+const uri = `mongodb+srv://${dbUser}:${dbPwd}@info441-26au-demo.ceufqjt.mongodb.net/`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {

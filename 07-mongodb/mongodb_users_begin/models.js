@@ -1,9 +1,12 @@
 import mongoose from 'mongoose';
-mongoose.connect('mongodb+srv://asfg_db_user:jWEm6y8awFbIaDx2@cluster0.gvdvoel.mongodb.net/?appName=Cluster0');
+mongoose.connect('');
 
 const Cat = mongoose.model('Cat', { name: String });
 
-const kitty = new Cat({ name: 'Orange' });
-kitty.save().then(() => console.log('meow'));
+const orange = new Cat({ name: 'Orange' });
+orange.save().then(() => console.log('meow'));
+
+const juice = new Cat({ name: 'Juice' });
+juice.save().then(() => console.log('meep'));
 
 mongoose.disconnect()
