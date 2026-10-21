@@ -21,14 +21,16 @@ app.use(cookieParser());
 app.use('/users', usersRouter);
 
 app.use('/', (req, res, next) => {
-  console.log("I'm here!")
+  console.log("I'm here, too!!")
+  res.send("lol no html for you")
   next()
 })
 
 app.use('/', (req, res, next) => {
-  console.log("I'm here, too!!")
-  res.send("lol no html for you")
+  console.log("I'm here!")
+  next()
 })
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 export default app;
