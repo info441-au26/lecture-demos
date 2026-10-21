@@ -1,5 +1,12 @@
+
+
+
+
+
 async function getPterosaurs(){
-    let response = await fetch("api/getPterosaurs")
+    // TODO: Don't take user input verbatim.
+    let status = document.getElementById('status').value;
+    let response = await fetch("api/getPterosaurs/" + status)
     try{
         let PterosaurJson = await response.json()
 

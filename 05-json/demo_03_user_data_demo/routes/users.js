@@ -13,6 +13,7 @@ router.get('/', async function(req, res, next) {
 // ex 1: presume that request is /api/users?animal=cat
 // ex 2: presume body is json and i can .key it
 router.post('/', function(req, res, next) {
+  console.log("POST boDY: " + Object.keys(req.body));
   console.log(
     "POSTING /users, name param is: " + 
     req.body.first_name

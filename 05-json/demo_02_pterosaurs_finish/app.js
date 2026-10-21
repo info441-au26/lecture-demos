@@ -20,6 +20,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/', () => {   // / means index.html
+  // run the command to compile react
+  // find /dist/index.html
+  // server
+
+});
+
 app.use('/users', usersRouter);
 
 app.use('/api', apiRouter)

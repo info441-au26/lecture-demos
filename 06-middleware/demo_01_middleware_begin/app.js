@@ -17,8 +17,18 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/users', usersRouter);
 
+app.use('/', (req, res, next) => {
+  console.log("I'm here!")
+  next()
+})
+
+app.use('/', (req, res, next) => {
+  console.log("I'm here, too!!")
+  res.send("lol no html for you")
+})
+
+app.use(express.static(path.join(__dirname, 'public')));
 export default app;

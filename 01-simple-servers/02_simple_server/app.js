@@ -31,7 +31,9 @@ app.get("/hello*noun", (req, res) => {
 
 
 
-app.listen(PORT, () => {
-    console.log(`Example app listening at http://localhost:${PORT}/`)
-})
+// app.listen(PORT, () => {
+//     console.log(`Example app listening at http://localhost:${PORT}/`)
+// })
 
+
+app.listen(3000, "localhost");
