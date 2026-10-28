@@ -1,0 +1,232 @@
+openapi: 3.0.0
+info:
+  description: "A small API for logging in, logging out, and viewing/editing a user\
+    \ profile."
+  title: Simple Account API
+  version: 1.0.0
+servers:
+- description: Local development server
+  url: http://localhost:8080/api/v1
+tags:
+- description: Login and logout
+  name: Auth
+- description: View and edit the current user's profile
+  name: Profile
+paths:
+  /login:
+    post:
+      description: Checks the credentials and returns a session token to send with
+        later requests.
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            example:
+              username: alice
+              password: hunter2
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+          description: Login succeeded
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Malformed request body
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Wrong username or password
+      summary: Log in
+      tags:
+      - Auth
+      x-eov-operation-handler: controllers/AuthController
+  /logout:
+    post:
+      description: Invalidates the current session token.
+      operationId: logout
+      responses:
+        "204":
+          description: Logged out; no content returned
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: "Missing, invalid, or expired token"
+      security:
+      - bearerAuth: []
+      summary: Log out
+      tags:
+      - Auth
+      x-eov-operation-handler: controllers/AuthController
+  /profile:
+    get:
+      operationId: getProfile
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+          description: The current user's profile
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: "Missing, invalid, or expired token"
+      security:
+      - bearerAuth: []
+      summary: View my profile
+      tags:
+      - Profile
+      x-eov-operation-handler: controllers/ProfileController
+    patch:
+      description: Updates only the fields included in the request body.
+      operationId: updateProfile
+      requestBody:
+        content:
+          application/json:
+            example:
+              displayName: Alice B.
+              bio: Hello from INFO 441!
+            schema:
+              $ref: "#/components/schemas/ProfileUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+          description: The updated profile
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Invalid field values
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: "Missing, invalid, or expired token"
+      security:
+      - bearerAuth: []
+      summary: Edit my profile
+      tags:
+      - Profile
+      x-eov-operation-handler: controllers/ProfileController
+components:
+  responses:
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: "Missing, invalid, or expired token"
+  schemas:
+    LoginRequest:
+      example:
+        username: alice
+        password: hunter2
+      properties:
+        username:
+          example: alice
+          type: string
+        password:
+          example: hunter2
+          format: password
+          type: string
+      required:
+      - password
+      - username
+      type: object
+    LoginResponse:
+      example:
+        token: 3f9a1c7e-5b2d-4e8a-9c1f-0a6d2b7e4f10
+      properties:
+        token:
+          example: 3f9a1c7e-5b2d-4e8a-9c1f-0a6d2b7e4f10
+          type: string
+      required:
+      - token
+      type: object
+    Profile:
+      example:
+        id: 42
+        username: alice
+        email: alice@example.com
+        displayName: Alice
+        bio: I like APIs.
+        createdAt: 2026-09-30T12:00:00Z
+      properties:
+        id:
+          example: 42
+          type: integer
+        username:
+          example: alice
+          type: string
+        email:
+          example: alice@example.com
+          format: email
+          type: string
+        displayName:
+          example: Alice
+          type: string
+        bio:
+          example: I like APIs.
+          type: string
+        createdAt:
+          example: 2026-09-30T12:00:00Z
+          format: date-time
+          type: string
+      required:
+      - email
+      - id
+      - username
+      type: object
+    ProfileUpdate:
+      description: "All fields are optional; id, username, and createdAt cannot be\
+        \ changed."
+      example:
+        email: email
+        displayName: displayName
+        bio: bio
+      properties:
+        email:
+          format: email
+          type: string
+        displayName:
+          maxLength: 50
+          type: string
+        bio:
+          maxLength: 280
+          type: string
+      type: object
+    Error:
+      example:
+        message: Something went wrong
+      properties:
+        message:
+          example: Something went wrong
+          type: string
+      required:
+      - message
+      type: object
+  securitySchemes:
+    bearerAuth:
+      description: "Token from POST /login, sent as \"Authorization: Bearer <token>\""
+      scheme: bearer
+      type: http

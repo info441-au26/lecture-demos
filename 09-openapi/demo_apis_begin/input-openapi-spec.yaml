@@ -1,0 +1,42 @@
+openapi: 3.0.0
+info:
+  description: |
+    # My Fancy API
+    This is a fairly simple API, but built using OpenAPI specs!
+  title: Simple API
+  version: 1.0.0
+servers:
+- description: Local Server
+  url: http://localhost:3000/api/v1
+paths:
+  /hello:
+    get:
+      description: "liveness check, just returning a string"
+      operationId: hello
+      responses:
+        "200":
+          content:
+            text/plain:
+              example: OK
+          description: hello
+  /echo:
+    post:
+      description: "Echo endpoint, returning back the text that was received, both as JSON"
+      operationId: echo
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+              # schema:
+              #   example:
+              #     text: hello
+              #   properties:
+              #     text:
+              #       example: hello
+              #       type: string
+          description: echo
