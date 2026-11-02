@@ -2,34 +2,13 @@ import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-import sessions from 'express-session'
-
-// 	npm install https://gitpkg.now.sh/kylethayer/ms-identity-javascript-nodejs-tutorial-msal-node-v2-/Common/msal-node-wrapper?main
-// (for mac install, you might need to put quotes around the package name)
-
-import WebAppAuthProvider from 'msal-node-wrapper'
-
-const authConfig = {
-    auth: {
-        clientId: "Client ID or Application ID HERE",
-        authority: "https://login.microsoftonline.com/Paste_the_Tenant_directory_ID_Here",
-        clientSecret: "Client or Application secret here (NOT THE 'secret id', but the 'secret value')",
-        redirectUri: "/redirect"
-    },
-	system: {
-    	loggerOptions: {
-        	loggerCallback(loglevel, message, containsPii) {
-            	console.log(message);
-        	},
-        	piiLoggingEnabled: false,
-        	logLevel: 3,
-    	}
-	}
-};
+import sessions from 'express-session';
+import { WebAppAuthProvider } from 'msal-node-wrapper'
 
 
-
-import usersRouter from './routes/users.js';
+import models from "./models.js"
+import indexRouter from './routes/index.js';
+import apiv3Router from './routes/api/v3/apiv3.js';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -37,44 +16,77 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-var app = express();
+const azure_secret = process.env.AZURE_AUTH_SECRET;
+const azure_client_id = process.env.AZURE_CLIENT_ID;
+const azure_authority_id = process.env.AZURE_AUTHORITY_ID;
 
-app.enable('trust proxy')
+var app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+const oneDay = 1000 * 60 * 60 * 24;
+app.use(sessions({
+    secret: azure_secret,
+    saveUninitialized: true,
+    cookie: { maxAge: oneDay },
+    resave: false
+}));
+
+// initialize the wrapper
+const authProvider = await WebAppAuthProvider.initialize({
+    auth: {
+        authority: "https://login.microsoftonline.com/" + azure_authority_id,
+        clientId: azure_client_id,
+        clientSecret: azure_secret,
+        redirectUri: "/redirect",
+    }
+});
+
+app.use(authProvider.authenticate({
+    protectAllRoutes: false, // force user to authenticate for all routes
+    acquireTokenForResources: { // acquire an access token for this resource
+        "graph.microsoft.com": { // you can specify the resource name as you like
+            scopes: ["User.Read"], // scopes for the resource that you want to acquire a token for
+            routes: ["/profile"] // acquire a token before the user hits these routes
+        },
+    }
+}));
+
+// add your routers/controllers here...
+
+app.use(authProvider.interactionErrorHandler()); // this middleware handles interaction required errors
+
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-const oneDay = 1000 * 60 * 60 * 24
-app.use(sessions({
-    secret: "This is some secret key I am making up 05n5yf5398hoiueneue",
-    saveUninitialized: true,
-    cookie: {maxAge: oneDay},
-    resave: false
-}))
+app.use((req, res, next) => {
+    req.models = models;
+    next();
+});
 
-const authProvider = await WebAppAuthProvider.WebAppAuthProvider.initialize(authConfig);
-app.use(authProvider.authenticate());
+app.use('/', indexRouter);
+app.use('/api/v3', apiv3Router);
 
 
-app.use('/users', usersRouter);
-
-
+// authentication routes
 app.get('/signin', (req, res, next) => {
-   	 return req.authContext.login({
-   		 postLoginRedirectUri: "/", // redirect here after login
-   	 })(req, res, next);
-    
+    return req.authContext.login({
+        postLoginRedirectUri: "/",
+    })(req, res, next);
 });
+
 app.get('/signout', (req, res, next) => {
-   	 return req.authContext.logout({
-   		 postLogoutRedirectUri: "/", // redirect here after logout
-   	 })(req, res, next);
-    
+    return req.authContext.logout({
+        postLogoutRedirectUri: "/",
+    })(req, res, next);
 });
-app.use(authProvider.interactionErrorHandler());
 
+// unauthorized
+app.get('/error', (req, res) => res.status(500).send('server error'));
 
+// error
+app.get('/unauthorized', (req, res) => res.status(401).send('Permission denied'));
 export default app;
