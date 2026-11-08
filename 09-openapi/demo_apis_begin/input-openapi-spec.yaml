@@ -19,6 +19,9 @@ paths:
             text/plain:
               example: OK
           description: hello
+        "400":
+          content:
+            ...
   /echo:
     post:
       description: "Echo endpoint, returning back the text that was received, both as JSON"

@@ -4,14 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node ./bin/www.cjs"
+    "start": "node --env-file-if-exists .env --watch ./bin/www.cjs"
   },
   "dependencies": {
-    "cookie-parser": "^1.0.0",
-    "debug": "~2.6.9",
-    "express": "^4.21.0",
-    "express-session": "^1.18.2",
-    "morgan": "^1.10.1",
-    "msal-node-wrapper": "https://gitpkg.now.sh/kylethayer/ms-identity-javascript-nodejs-tutorial-msal-node-v2-/Common/msal-node-wrapper?main"
+    "cookie-parser": "^1.4.7",
+    "debug": "^4.4.3",
+    "express": "^5.3.0",
+    "express-sessions": "^1.0.6",
+    "morgan": "^1.12.1",
+    "msal-node-wrapper": "git+https://github.com/afitz0/ms-identity-javascript-nodejs-tutorial-msal-node-v2-wrapper.git"
   }
 }

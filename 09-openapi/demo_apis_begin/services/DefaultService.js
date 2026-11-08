@@ -10,9 +10,9 @@ const Service = require('./Service');
 const echo = ({ body }) => new Promise(
   async (resolve, reject) => {
     try {
-      resolve(Service.successResponse(
+      resolve(Service.successResponse({
         body,
-      ));
+      }));
     } catch (e) {
       reject(Service.rejectResponse(
         e.message || 'Invalid input',

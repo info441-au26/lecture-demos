@@ -6,9 +6,10 @@ import sessions from 'express-session';
 import { WebAppAuthProvider } from 'msal-node-wrapper'
 
 
-import models from "./models.js"
-import indexRouter from './routes/index.js';
-import apiv3Router from './routes/api/v3/apiv3.js';
+// import models from "./models.js"
+// import indexRouter from './routes/index.js';
+// import apiv3Router from './routes/api/v3/apiv3.js';
+import usersRouter from './routes/users.js';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -50,7 +51,7 @@ app.use(authProvider.authenticate({
     acquireTokenForResources: { // acquire an access token for this resource
         "graph.microsoft.com": { // you can specify the resource name as you like
             scopes: ["User.Read"], // scopes for the resource that you want to acquire a token for
-            routes: ["/profile"] // acquire a token before the user hits these routes
+            routes: ["/profile", "/password"] // acquire a token before the user hits these routes
         },
     }
 }));
@@ -63,12 +64,13 @@ app.use(authProvider.interactionErrorHandler()); // this middleware handles inte
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-    req.models = models;
+    // req.models = models;
     next();
 });
 
-app.use('/', indexRouter);
-app.use('/api/v3', apiv3Router);
+// app.use('/', indexRouter);
+app.use('/users', usersRouter);
+// app.use('/api/v3', apiv3Router);
 
 
 // authentication routes
@@ -89,4 +91,5 @@ app.get('/error', (req, res) => res.status(500).send('server error'));
 
 // error
 app.get('/unauthorized', (req, res) => res.status(401).send('Permission denied'));
+
 export default app;
